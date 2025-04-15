@@ -1,7 +1,8 @@
 pipeline {
     
     agent {label 'node2'}
-    
+    parameters {
+        choice(name:'Environment' , choices:['DEV','UAT','SIT','master'],description:environments) 
     stages {
         stage('Git Checkout'){
             steps{
