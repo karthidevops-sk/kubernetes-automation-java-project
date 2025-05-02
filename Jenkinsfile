@@ -49,12 +49,18 @@ pipeline {
                     }
                 }
             }
-        stage('deploy docker image') {
-            steps {
-                 sh '''
-                 docker ps -q -f name=shopping-container && docker stop shopping-container && docker rm shopping-container || echo "Container not found or already stopped."
-                 docker run -d -p 9191:8181 --name shopping-container  karthidevops01/shopping:v.$BUILD_NUMBER
-                 '''
+    stage('Deploy to EKS') {
+      steps {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+          sh '''
+            echo "Configuring kubeconfig for EKS..."
+            aws eks update-kubeconfig --region $ap-south-1 --name $mydemo_cluster
+            echo "Deploying to EKS..."
+            kubectl apply -f k8s/deployment-service.yaml.yaml
+          '''
+        }
+      }
+    
             }
         }
     }
